@@ -1,5 +1,6 @@
 package org.example.core.service;
 
+import io.dropwizard.hibernate.UnitOfWork;
 import org.example.db.dao.PlayerDao;
 import org.example.db.dao.TeamDao;
 import org.example.db.entity.Player;
@@ -36,6 +37,7 @@ public class AuctionService {
         playerDao.deletePlayerById(id);
         return 1;
     }
+
     public List<Team> getTeams(){
         return teamDao.listTeams();
     }
@@ -52,11 +54,26 @@ public class AuctionService {
         existingTeam.setBudget(team.getBudget());
         return teamDao.saveTeam(existingTeam);
     }
+    public Team addPlayerToTeam(int playerId,int teamId,int sellPrice){
+
+        Team team = addPlayerToTeamHelper(playerId,teamId,sellPrice);
+        return saveTeam(team);
+
+    }
     public Team addPlayerToTeam(int playerId,int teamId){
+        Team team= addPlayerToTeamHelper(playerId,teamId,0);
+        return saveTeam(team);
+
+    }
+    private Team addPlayerToTeamHelper(int playerId, int teamId,int sellPrice){
         Player player = getPlayerById(playerId);
+        player.setSoldPrice(sellPrice);
         Team team = findTeamById(teamId);
+        team.setBudget(team.getBudget()-player.getSoldPrice());
+        player.setFlag("F");
         team.addPlayer(player);
-        return teamDao.saveTeam(team);
+        savePlayer(player);
+        return team;
 
     }
 }

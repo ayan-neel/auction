@@ -1,25 +1,35 @@
 package org.example.api.model;
 
-public class PlayerRequest {
-
-    private int id;
+public class PlayerResponseWithTeam {
 
 
 
     private String playerName;
     private String nationality;
 
-    private String primaryRole;
-
-    private int basePrice;
-
-    public PlayerRequest() {
+    public PlayerResponseWithTeam() {
     }
 
-    public PlayerRequest(String playerName, String nationality, String primaryRole) {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    private String primaryRole;
+
+    private String teamName;
+
+    private int id;
+
+    public PlayerResponseWithTeam(String playerName, String nationality, String primaryRole, String teamName, int id) {
         this.playerName = playerName;
         this.nationality = nationality;
         this.primaryRole = primaryRole;
+        this.teamName = teamName;
+        this.id = id;
     }
 
     public String getPlayerName() {
@@ -45,21 +55,13 @@ public class PlayerRequest {
     public void setPrimaryRole(String primaryRole) {
         this.primaryRole = primaryRole;
     }
-    public int getId() {
-        return id;
+
+    public String getTeamName() {
+        return teamName;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
     }
 
-    public int getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(int basePrice) {
-        this.basePrice = basePrice;
-    }
 }
-
-

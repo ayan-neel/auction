@@ -54,11 +54,42 @@ public class Player {
     @Column
     private String nationality;
 
+    public String getFlag() {
+        return flag;
+    }
+
+    public void setFlag(String flag) {
+        this.flag = flag;
+    }
+
+
+    public int getBasePrice() {
+        return basePrice;
+    }
+
+    public void setBasePrice(int basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public int getSoldPrice() {
+        return soldPrice;
+    }
+
+    public void setSoldPrice(int soldPrice) {
+        this.soldPrice = soldPrice;
+    }
+
     @Column
     private String primaryRole;
 
     @Column
     private String flag;
+
+    @Column
+    private int basePrice;
+
+    @Column
+    private int soldPrice;
 
     @ManyToOne(cascade= {CascadeType.DETACH,
             CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},fetch = FetchType.LAZY)
@@ -74,13 +105,14 @@ public class Player {
         this.team = team;
     }
 
+
     @Override
     public String toString() {
         return "Player{" +
-                "id=" + id +
-                ", playerName='" + playerName + '\'' +
+                "playerName='" + playerName + '\'' +
                 ", nationality='" + nationality + '\'' +
                 ", primaryRole='" + primaryRole + '\'' +
+                ", price=" + basePrice +
                 '}';
     }
 }
