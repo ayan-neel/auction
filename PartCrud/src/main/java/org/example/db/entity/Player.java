@@ -2,10 +2,12 @@ package org.example.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table
 @NamedQuery(name = "Player.getAll", query = "SELECT e from Player e")
+@Data
 public class Player {
 
     @Id
@@ -28,25 +30,7 @@ public class Player {
         return playerName;
     }
 
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
 
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
-    public String getPrimaryRole() {
-        return primaryRole;
-    }
-
-    public void setPrimaryRole(String primaryRole) {
-        this.primaryRole = primaryRole;
-    }
 
     @Column
     private String playerName;
@@ -54,36 +38,11 @@ public class Player {
     @Column
     private String nationality;
 
-    public String getFlag() {
-        return flag;
-    }
-
-    public void setFlag(String flag) {
-        this.flag = flag;
-    }
-
-
-    public int getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(int basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public int getSoldPrice() {
-        return soldPrice;
-    }
-
-    public void setSoldPrice(int soldPrice) {
-        this.soldPrice = soldPrice;
-    }
-
     @Column
     private String primaryRole;
 
     @Column
-    private String flag;
+    private boolean flag;
 
     @Column
     private int basePrice;
@@ -96,15 +55,6 @@ public class Player {
     @JoinColumn(name="team_id")
     @JsonIgnore
     private Team team;
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
 
     @Override
     public String toString() {

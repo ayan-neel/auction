@@ -7,10 +7,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.checkerframework.checker.units.qual.Time;
 import org.example.api.Representation;
-import org.example.api.model.BidRequest;
-import org.example.api.model.PlayerRequest;
-import org.example.api.model.PlayerResponseWithTeam;
-import org.example.api.model.TeamRequest;
+import org.example.api.model.*;
 import org.example.core.service.AuctionService;
 import org.example.db.entity.Player;
 import org.example.db.entity.Team;
@@ -23,7 +20,7 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuctionResource {
 
-    private AuctionService auctionService;
+    private final AuctionService auctionService;
 
     public AuctionResource(AuctionService auctionService){
         this.auctionService = auctionService;
@@ -70,7 +67,7 @@ public class AuctionResource {
         player.setPlayerName(playerRequest.getPlayerName());
         player.setNationality(playerRequest.getNationality());
         player.setPrimaryRole(playerRequest.getPrimaryRole());
-        player.setFlag("T");
+        player.setFlag(true);
         player.setBasePrice(playerRequest.getBasePrice());
         int code = 201;
         return new Representation<>(code, auctionService.savePlayer(player));
@@ -132,7 +129,7 @@ public class AuctionResource {
     }
 
     //for testing purpose
-    @Path("/buy")
+    @Path("/auction/buy")
     @PUT
     @Timed
     @UnitOfWork
@@ -145,15 +142,16 @@ public class AuctionResource {
 
     }
 
-    @Path("/startAuction")
+    @Path("/start")
     @GET
     @Timed
     @UnitOfWork
     public Representation<List<Team>> startAuction(){
 
-        List<Team> teams = auctionService.getTeams();
+        List<Team> teams;
+        teams = auctionService.getTeams();
         List<Player> players = auctionService.getPlayers().stream()
-                .filter(p -> p.getFlag().equals("T")).collect(Collectors.toList());
+                .filter(p -> p.isFlag()).collect(Collectors.toList());
 
 
         startAuction(players, teams);
@@ -168,7 +166,7 @@ public class AuctionResource {
 
         for (Player player : players) {
 
-            Map<String, Integer> bidMap = teams.stream()
+            Map<String, Integer> bidMap = teams.stream().filter(t->t.getBudget()-player.getBasePrice()>0)
                     .collect(Collectors.toMap(Team::getTeamName, data -> 0));
 
             System.out.println("Bidding for player : " + player);
@@ -181,6 +179,7 @@ public class AuctionResource {
     }
     @UnitOfWork
     private void playerBid(int basePrice,List<String>bidders,List<Team>teams,Map<String,Integer>bidMap,Player player) {
+        Stack<String>bidStack = new Stack<>();
         Scanner sc = new Scanner(System.in);
         while (bidders.size() >= 1) {
             if (bidders.size() == 1 && bidMap.get(bidders.stream().findFirst().get()) > 0) //bid win
@@ -189,11 +188,12 @@ public class AuctionResource {
                 break;
             }
             for (String team : bidders) {
-                System.out.println("Team" + team);
+                System.out.println("Team: " + team);
                 System.out.println("Bid?:");
                 if (Objects.equals(sc.nextLine(), "Y")) {
                     basePrice += 500;
                     bidMap.put(team, basePrice);
+                    bidStack.push(team);
                     System.out.println(
                             "#######Team: " + team + " has bid" + "\n New bid price :" + basePrice);
                 } else {
@@ -204,14 +204,28 @@ public class AuctionResource {
 
             bidders = bidMap.entrySet().stream().filter(e -> e.getValue() >= 0).map(Map.Entry::getKey)
                     .collect(Collectors.toList());
+            int finalBasePrice = basePrice;
+
+            List<String>canBidFurtherTeams = teams.stream().filter(t->t.getBudget()- finalBasePrice >=0).map(t->t.getTeamName()).collect(Collectors.toList());
+
+            bidders = bidders.stream().filter(canBidFurtherTeams::contains).collect(Collectors.toList());
+
 
             if (bidders.isEmpty()) { //no bids
+                if(bidStack.isEmpty()) {
+                    System.out.println("Player: " + player.getPlayerName() + " not sold");
+                }
+                else{
+                    String bidWinner = bidStack.pop();
+                    bidders.add(bidWinner);
+                    bidMap.put(bidWinner,basePrice);
+                    bidWin(bidders, teams, bidMap, player);
 
-                System.out.println("Player: " + player.getPlayerName() + " not sold");
+                }
                 break;
 
-
             }
+
 
         }
     }
@@ -224,7 +238,7 @@ public class AuctionResource {
                 .filter(t -> t.getTeamName().equals(bidWinner)).findFirst().get();
         Team team =auctionService.addPlayerToTeam(player.getId(), bidWinnerTeamObj.getId(),
                 soldPrice);
-        System.out.println("Player: "+player.getPlayerName()+" sold to "+team.getTeamName()+" for "+soldPrice);
+        System.out.println("Player : "+player.getPlayerName()+" sold to "+team.getTeamName()+" for: "+soldPrice+ "\tremaining budget: "+team.getBudget());
 
     }
 

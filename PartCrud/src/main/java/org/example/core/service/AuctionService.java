@@ -1,6 +1,5 @@
 package org.example.core.service;
 
-import io.dropwizard.hibernate.UnitOfWork;
 import org.example.db.dao.PlayerDao;
 import org.example.db.dao.TeamDao;
 import org.example.db.entity.Player;
@@ -70,7 +69,7 @@ public class AuctionService {
         player.setSoldPrice(sellPrice);
         Team team = findTeamById(teamId);
         team.setBudget(team.getBudget()-player.getSoldPrice());
-        player.setFlag("F");
+        player.setFlag(false);
         team.addPlayer(player);
         savePlayer(player);
         return team;
