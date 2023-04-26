@@ -33,8 +33,7 @@ public class AuctionResource {
     public Representation<Player> getPlayerById(@PathParam("id") int id){
         System.out.println("invoked");
         int code = 200;
-        Player player = auctionService.getPlayerById(id);
-        return new Representation<>(code,player);
+        return new Representation<>(code,auctionService.getPlayerById(id));
 
     }
     @Path("/getPlayers")
@@ -44,8 +43,7 @@ public class AuctionResource {
     public Representation<List<Player>> getPlayers(@PathParam("id") int id){
         System.out.println("invoked");
         int code = 200;
-        List<Player> players = auctionService.getPlayers();
-        return new Representation<>(code,players);
+        return new Representation<>(code,auctionService.getPlayers());
 
     }
    /* @Path("/getPlayersWithTeam")
@@ -63,14 +61,9 @@ public class AuctionResource {
     @Time
     @UnitOfWork
     public Representation<Player> savePlayer(@Valid PlayerRequest playerRequest) {
-        Player player = new Player();
-        player.setPlayerName(playerRequest.getPlayerName());
-        player.setNationality(playerRequest.getNationality());
-        player.setPrimaryRole(playerRequest.getPrimaryRole());
-        player.setFlag(true);
-        player.setBasePrice(playerRequest.getBasePrice());
+
         int code = 201;
-        return new Representation<>(code, auctionService.savePlayer(player));
+        return new Representation<>(code, auctionService.savePlayer(playerRequest));
 
     }
     @Path("/players/edit")
@@ -78,13 +71,9 @@ public class AuctionResource {
     @Time
     @UnitOfWork
     public Representation<Player> editPlayer(@Valid PlayerRequest playerRequest) {
-        Player player = new Player();
-        player.setId(playerRequest.getId());
-        player.setPlayerName(playerRequest.getPlayerName());
-        player.setNationality(playerRequest.getNationality());
-        player.setPrimaryRole(playerRequest.getPrimaryRole());
+
         int code = 204;
-        return new Representation<>(code, auctionService.editPlayer(player));
+        return new Representation<>(code, auctionService.editPlayer(playerRequest));
 
     }
     @Path("/players/delete/{id}")
@@ -120,11 +109,9 @@ public class AuctionResource {
     @Timed
     @UnitOfWork
     public Representation<Team> saveTeam(TeamRequest teamRequest){
-        Team team = new Team();
-        team.setTeamName(teamRequest.getTeamName());
-        team.setBudget(teamRequest.getBudget());
+
         int code=201;
-        return new Representation<>(code,auctionService.saveTeam(team));
+        return new Representation<>(code,auctionService.saveTeam(teamRequest));
 
     }
 
@@ -190,7 +177,8 @@ public class AuctionResource {
             for (String team : bidders) {
                 System.out.println("Team: " + team);
                 System.out.println("Bid?:");
-                if (Objects.equals(sc.nextLine(), "Y")) {
+                String choice = sc.nextLine();
+                if (Objects.equals(sc, "y")||Objects.equals(sc,"Y")) {
                     basePrice += 500;
                     bidMap.put(team, basePrice);
                     bidStack.push(team);

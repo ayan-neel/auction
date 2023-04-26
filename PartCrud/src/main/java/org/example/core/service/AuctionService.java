@@ -1,5 +1,7 @@
 package org.example.core.service;
 
+import org.example.api.model.PlayerRequest;
+import org.example.api.model.TeamRequest;
 import org.example.db.dao.PlayerDao;
 import org.example.db.dao.TeamDao;
 import org.example.db.entity.Player;
@@ -22,10 +24,21 @@ public class AuctionService {
         return playerDao.listPlayers();
     }
 
-    public Player savePlayer(Player player){
+    public Player savePlayer(PlayerRequest playerRequest){
+        Player player = new Player();
+        player.setPlayerName(playerRequest.getPlayerName());
+        player.setNationality(playerRequest.getNationality());
+        player.setPrimaryRole(playerRequest.getPrimaryRole());
+        player.setFlag(true);
+        player.setBasePrice(playerRequest.getBasePrice());
         return playerDao.savePlayer(player);
     }
-    public Player editPlayer(Player player){
+    public Player editPlayer(PlayerRequest playerRequest){
+        Player player = new Player();
+        player.setId(playerRequest.getId());
+        player.setPlayerName(playerRequest.getPlayerName());
+        player.setNationality(playerRequest.getNationality());
+        player.setPrimaryRole(playerRequest.getPrimaryRole());
         Player existingPlayer = getPlayerById(player.getId());
         existingPlayer.setPlayerName(player.getPlayerName());
         existingPlayer.setPrimaryRole(player.getPrimaryRole());
@@ -43,7 +56,10 @@ public class AuctionService {
     public Team findTeamById(int id){
         return teamDao.getTeamById(id);
     }
-    public Team saveTeam(Team team){
+    public Team saveTeam(TeamRequest teamRequest){
+        Team team = new Team();
+        team.setTeamName(teamRequest.getTeamName());
+        team.setBudget(teamRequest.getBudget());
         return teamDao.saveTeam(team);
     }
 
@@ -56,12 +72,12 @@ public class AuctionService {
     public Team addPlayerToTeam(int playerId,int teamId,int sellPrice){
 
         Team team = addPlayerToTeamHelper(playerId,teamId,sellPrice);
-        return saveTeam(team);
+        return teamDao.saveTeam(team);
 
     }
     public Team addPlayerToTeam(int playerId,int teamId){
         Team team= addPlayerToTeamHelper(playerId,teamId,0);
-        return saveTeam(team);
+        return teamDao.saveTeam(team);
 
     }
     private Team addPlayerToTeamHelper(int playerId, int teamId,int sellPrice){
@@ -71,7 +87,7 @@ public class AuctionService {
         team.setBudget(team.getBudget()-player.getSoldPrice());
         player.setFlag(false);
         team.addPlayer(player);
-        savePlayer(player);
+        playerDao.savePlayer(player);
         return team;
 
     }
